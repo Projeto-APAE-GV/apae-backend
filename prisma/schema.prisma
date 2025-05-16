@@ -1,0 +1,524 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model CadastroGeral {
+  id               Int               @id @default(autoincrement())
+  nomeCompleto     String            @map("nome_completo")
+  cpf              String            @unique
+  sexo             Sexo
+  dataNascimento   DateTime          @map("data_nascimento")
+  cep              String
+  rua              String
+  numero           String
+  complemento      String?           
+  fotoIdentificacao Bytes?            @map("foto_identificacao")
+
+  login            Login?
+  usuarioOcupacao  UsuarioOcupacao[]
+  prontuarios      Prontuario[]
+  identificacoes   ProntuarioIdentificacaoCadastral[]
+}
+
+model Login {
+  id               Int      @id @default(autoincrement())
+  nome             String
+  email            String   @unique
+  senha            String
+  tipo             TipoLogin
+  cadastroGeralId  Int      @unique @map("cadastro_geral_id")
+  cadastroGeral    CadastroGeral @relation(fields: [cadastroGeralId], references: [id])
+  alteracoes       ProntuarioHistorico[] @relation("AlteradorLogin")
+}
+
+model Ocupacao {
+  id              Int               @id @default(autoincrement())
+  nome            String
+  descricao       String?
+  usuarios        UsuarioOcupacao[]
+}
+
+model UsuarioOcupacao {
+  cadastroGeralId Int
+  ocupacaoId      Int
+  cadastroGeral   CadastroGeral @relation(fields: [cadastroGeralId], references: [id], onDelete: Cascade)
+  ocupacao        Ocupacao      @relation(fields: [ocupacaoId], references: [id], onDelete: Cascade)
+
+  @@id([cadastroGeralId, ocupacaoId])
+  @@map("usuario_ocupacao")
+}
+
+model Prontuario {
+  id                        Int                          @id @default(autoincrement())
+  cadastroGeralId           Int                          @map("cadastro_geral_id")
+  condicao                  String?
+  dataCriacao               DateTime                     @default(now()) @map("data_criacao")
+  cadastroGeral             CadastroGeral                @relation(fields: [cadastroGeralId], references: [id], onDelete: Cascade)
+  historico                 ProntuarioHistorico[]
+  identificacaoCadastral    ProntuarioIdentificacaoCadastral[]
+  identificacaoDomicilio    ProntuarioIdentificacaoDomicilio?
+  identificacaoPcdi         ProntuarioIdentificacaoPcdi?
+  acessoServico             ProntuarioAcessoServico?
+  composicaoFamiliar        ProntuarioComposicaoFamiliar[]
+  despesasFamiliares        ProntuarioDespesasFamiliares?
+  historiaVidaFamiliar      ProntuarioHistoriaVidaFamiliar?
+  apoioRotinaFamiliar       ProntuarioApoioRotinaFamiliar?
+  satisfacaoCasa            ProntuarioSatisfacaoCasa?
+  participacaoComunidade    ProntuarioParticipacaoComunidade?
+  lazer                     ProntuarioLazer?
+  educacaoEscolar           ProntuarioEducacaoEscolar?
+  convivencia               ProntuarioConvivencia?
+}
+
+model ProntuarioHistorico {
+  id                  Int       @id @default(autoincrement())
+  prontuarioId        Int       @map("prontuario_id")
+  alteradorId         Int       @map("alterador_id")
+  nomeTabelaInteracao String    @map("nome_tabela_interacao")
+  tipoInteracao       TipoInteracao @map("tipo_interacao")
+
+  prontuario          Prontuario @relation(fields: [prontuarioId], references: [id])
+  alterador           Login      @relation("AlteradorLogin", fields: [alteradorId], references: [id])
+}
+
+model ProntuarioIdentificacaoCadastral {
+  id                   Int     @id @default(autoincrement())
+  prontuarioId         Int     @map("prontuario_id")
+  cadastroGeralId      Int     @map("cadastro_geral_id")
+  apelido              String?
+  rg                   String?  @db.VarChar(20)
+  orgaoEmissor         String?  @map("orgao_emissor")
+  uf                   String?  @db.Char(2)
+  dataEmissao          DateTime? @map("data_emissao")
+  tipoDeficiencias     String?  @map("tipo_deficiencias")
+  racaCor              RacaCor?
+  nomeMae              String?  @map("nome_mae")
+  dataNascimentoMae    DateTime? @map("data_nascimento_mae")
+  telefonesContato     String?  @map("telefones_contato")
+
+  prontuario           Prontuario   @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+  cadastroGeral        CadastroGeral @relation(fields: [cadastroGeralId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioIdentificacaoDomicilio {
+  id                  Int     @id @default(autoincrement())
+  prontuarioId        Int     @unique @map("prontuario_id")
+  localizacao         LocalizacaoEnum?
+  tipoDomicilio       TipoDomicilioEnum?
+  tipoPropriedade     TipoPropriedadeEnum?
+  qtdComodos          Int?    @map("qtd_comodos")
+  qtdDormitorios      Int?    @map("qtd_dormitorios")
+  quartoParaPcdi      Boolean? @map("quarto_para_pcdi")
+  adaptacaoQuarto     Boolean? @map("adaptacao_quarto")
+  adaptacaoBanheiro   Boolean? @map("adaptacao_banheiro")
+  aguaCanalizada      Boolean? @map("agua_canalizada")
+  formaAbastecimento  FormaAbastecimentoEnum? @map("forma_abastecimento")
+  formaIluminacao     FormaIluminacaoEnum? @map("forma_iluminacao")
+  tipoPiso            TipoPisoEnum? @map("tipo_piso")
+  tipoAcesso          TipoAcessoEnum? @map("tipo_acesso")
+  outrasFamilias      Boolean? @map("outras_familias")
+  qtdOutrasFamilias   Int?    @map("qtd_outras_familias")
+
+  prontuario          Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioIdentificacaoPcdi {
+  id                     Int     @id @default(autoincrement())
+  prontuarioId           Int     @unique @map("prontuario_id")
+  usaAparelho            Boolean? @map("usa_aparelho")
+  usaOrtese              Boolean? @map("usa_ortese")
+  descricaoOrtese        String? @map("descricao_ortese")
+  comunicaSozinho        Boolean? @map("comunica_sozinho")
+  comunicacaoOral        String? @db.Char(1) @map("comunicacao_oral")
+  comunicacaoEscrita     String? @db.Char(1) @map("comunicacao_escrita")
+  comunicacaoLibras      String? @db.Char(1) @map("comunicacao_libras")
+  comunicacaoBraille     String? @db.Char(1) @map("comunicacao_braille")
+  comunicacaoGestual     String? @db.Char(1) @map("comunicacao_gestual")
+  comunicacaoOutra       String? @map("comunicacao_outra")
+  possuiDiagnostico      Boolean? @map("possui_diagnostico")
+  quemDiagnosticou       String? @map("quem_diagnosticou")
+  dataDiagnostico        DateTime? @map("data_diagnostico")
+  possuiDoenca           Boolean? @map("possui_doenca")
+  descricaoDoenca        String? @map("descricao_doenca")
+  localTratamento        String? @map("local_tratamento")
+  usoMedicamento         Boolean? @map("uso_medicamento")
+  formaAquisicaoMedicamento String? @map("forma_aquisicao_medicamento")
+  frequenciaIdaMedico    FrequenciaIdaMedicoEnum? @map("frequencia_ida_medico")
+  possuiCartaoSus        Boolean? @map("possui_cartao_sus")
+  numeroCartaoSus        String? @map("numero_cartao_sus")
+
+  prontuario             Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioAcessoServico {
+  id                  Int     @id @default(autoincrement())
+  prontuarioId        Int     @unique @map("prontuario_id")
+  formaAcesso         FormaAcessoEnum?
+  motivoProcura       String? @map("motivo_procura")
+  comoChegou         String? @map("como_chegou")
+  dificuldadesCuidados String? @map("dificuldades_cuidados")
+  expectativasApae    String? @map("expectativas_apae")
+  tecnicoReferencia   String? @map("tecnico_referencia")
+  registroConselho    String? @map("registro_conselho")
+  parecerTecnico      String? @map("parecer_tecnico")
+  dataAcolhida        DateTime? @map("data_acolhida")
+
+  prontuario          Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioComposicaoFamiliar {
+  id                   Int     @id @default(autoincrement())
+  prontuarioId         Int     @unique @map("prontuario_id")
+  nomeCompleto         String? @map("nome_completo")
+  sexo                 Sexo?
+  dataNascimento       DateTime? @map("data_nascimento")
+  idade                Int?
+  situacaoOcupacional  String? @map("situacao_ocupacional")
+  fonteRenda           String? @map("fonte_renda")
+  valorRenda           Float?  @map("valor_renda")
+  grauEscolaridade     String? @map("grau_escolaridade")
+  estudaAtualmente     Boolean? @map("estuda_atualmente")
+  periodoEstudo        PeriodoEstudoEnum? @map("periodo_estudo")
+  parentesco           ParentescoEnum?
+  responsavelPeloUsuario Boolean? @map("responsavel_pelo_usuario") @default(false)
+
+  prontuario           Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioDespesasFamiliares {
+  id                Int     @id @default(autoincrement())
+  prontuarioId      Int     @unique @map("prontuario_id")
+  energiaEletrica   Float?  @map("energia_eletrica")
+  aguaEsgoto       Float?  @map("agua_esgoto")
+  gas               Float?  @map("gas")
+  alimentacao       Float?  @map("alimentacao")
+  transporte        Float?  @map("transporte")
+  aluguel           Float?  @map("aluguel")
+  medicamentos      Float?  @map("medicamentos")
+
+  prontuario        Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioHistoriaVidaFamiliar {
+  id                 Int     @id @default(autoincrement())
+  prontuarioId       Int     @unique @map("prontuario_id")
+  descricao          String?
+  mudancasPosNascimento Boolean? @map("mudancas_pos_nascimento")
+  mudancasDescricao  String? @map("mudancas_descricao")
+  fatosPositivos     String? @map("fatos_positivos")
+  fatosNegativos     String? @map("fatos_negativos")
+
+  prontuario         Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioApoioRotinaFamiliar {
+  id                 Int     @id @default(autoincrement())
+  prontuarioId       Int     @unique @map("prontuario_id")
+  apoioAmigos        String? @map("apoio_amigos")
+  apoioFamiliares    String? @map("apoio_familiares")
+  apoioIgreja        String? @map("apoio_igreja")
+  apoioServicosPublicos String? @map("apoio_servicos_publicos")
+  apoioVizinhos      String? @map("apoio_vizinhos")
+  apoioOutros        String? @map("apoio_outros")
+  comunicacaoFamilia String? @map("comunicacao_familia")
+  escolhaComunicacao String? @map("escolha_comunicacao")
+  tipoComunicacaoCasa String? @map("tipo_comunicacao_casa")
+  membrosEntendemComunicacao String? @map("membros_entendem_comunicacao")
+  participaRotinas   ParticipaRotinasSet?
+  situacoesAlegriaPcdi String? @map("situacoes_alegria_pcdi")
+  situacoesAlegriaCuidador String? @map("situacoes_alegria_cuidador")
+  situacoesMedoPcdi  String? @map("situacoes_medo_pcdi")
+  situacoesMedoCuidador String? @map("situacoes_medo_cuidador")
+  aspiracoesPcdi     String? @map("aspiracoes_pcdi")
+  aspiracoesCuidador String? @map("aspiracoes_cuidador")
+  participaAtividades Boolean? @map("participa_atividades")
+  tiposAtividades    String? @map("tipos_atividades")
+
+  prontuario         Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioSatisfacaoCasa {
+  id                   Int     @id @default(autoincrement())
+  prontuarioId         Int     @unique @map("prontuario_id")
+  satisfacaoVida       String? @map("satisfacao_vida") @db.VarChar(2)
+  satisfacaoResidencia String? @map("satisfacao_residencia") @db.VarChar(2)
+  satisfacaoRenda      String? @map("satisfacao_renda") @db.VarChar(2)
+  satisfacaoAmigos     String? @map("satisfacao_amigos") @db.VarChar(2)
+  satisfacaoFamilia    String? @map("satisfacao_familia") @db.VarChar(2)
+  satisfacaoVizinhos   String? @map("satisfacao_vizinhos") @db.VarChar(2)
+  satisfacaoSeguranca  String? @map("satisfacao_seguranca") @db.VarChar(2)
+  satisfacaoEscolaridade String? @map("satisfacao_escolaridade") @db.VarChar(2)
+  satisfacaoSaude      String? @map("satisfacao_saude") @db.VarChar(2)
+  satisfacaoAutonomia  String? @map("satisfacao_autonomia") @db.VarChar(2)
+  satisfacaoApoioCuidados String? @map("satisfacao_apoio_cuidados") @db.VarChar(2)
+  satisfacaoReligiao   String? @map("satisfacao_religiao") @db.VarChar(2)
+  satisfacaoOutros     String? @map("satisfacao_outros")
+  tarefasFamiliares    Boolean? @map("tarefas_familiares")
+  pcdiTemTarefas      Boolean? @map("pcdi_tem_tarefas")
+  tarefasQuais        String? @map("tarefas_quais")
+  frequenciaTarefas   FrequenciaTarefasEnum?
+  precisaApoioTarefas Boolean? @map("precisa_apoio_tarefas")
+  quemApoia           String? @map("quem_apoia")
+  interesseTarefas    Boolean? @map("interesse_tarefas")
+  tarefasGostaria     String? @map("tarefas_gostaria")
+  necessidadesParaTarefas String? @map("necessidades_para_tarefas")
+  achaImportante      Boolean? @map("acha_importante")
+  justificativaImportancia String? @map("justificativa_importancia")
+  acreditaRealizacao  Boolean? @map("acredita_realizacao")
+  justificativaAcredita String? @map("justificativa_acredita")
+  conheceEspacos      Boolean? @map("conhece_espacos")
+  espacosQuais       String? @map("espacos_quais")
+  escolheLocais      Boolean? @map("escolhe_locais")
+  casaTemAcessibilidade Boolean? @map("casa_tem_acessibilidade")
+  apoioLocomocao     Boolean? @map("apoio_locomocao")
+  apoioLocomocaoDescricao String? @map("apoio_locomocao_descricao")
+
+  prontuario         Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioParticipacaoComunidade {
+  id                    Int     @id @default(autoincrement())
+  prontuarioId          Int     @unique @map("prontuario_id")
+  conheceClubeEsportivo Boolean?
+  utilizaClubeEsportivo Boolean?
+  interesseClubeEsportivo Boolean?
+  conheceCras           Boolean?
+  utilizaCras           Boolean?
+  interesseCras         Boolean?
+  conheceCreas          Boolean?
+  utilizaCreas          Boolean?
+  interesseCreas        Boolean?
+  conheceEscola         Boolean?
+  utilizaEscola         Boolean?
+  interesseEscola       Boolean?
+  conhecePraca          Boolean?
+  utilizaPraca          Boolean?
+  interessePraca        Boolean?
+  conhecePsf            Boolean?
+  utilizaPsf            Boolean?
+  interessePsf          Boolean?
+  conheceOutros         Boolean?
+  utilizaOutros         Boolean?
+  interesseOutros       Boolean?
+  dificuldadeParticipacaoFamilia String? @map("dificuldade_participacao_familia")
+  dificuldadeParticipacaoPcdi String? @map("dificuldade_participacao_pcdi")
+  interessePcdiParticipar Boolean? @map("interesse_pcdi_participar")
+  interessePcdiQual      String? @map("interesse_pcdi_qual")
+  atividadesDesejadasComunidade String? @map("atividades_desejadas_comunidade")
+  apoioNecessarioAtividades String? @map("apoio_necessario_atividades")
+  meioTransporte         MeioTransporteEnum?
+  pessoasRelacionamento  String? @map("pessoas_relacionamento")
+  frequenciaAmigos       FrequenciaEnum?
+  frequenciaVizinhos     FrequenciaEnum?
+  frequenciaOutros       FrequenciaEnum?
+  preocupacaoFuturo      String? @map("preocupacao_futuro")
+
+  prontuario             Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioLazer {
+  id                     Int     @id @default(autoincrement())
+  prontuarioId           Int     @unique @map("prontuario_id")
+  familiaParticipa       Boolean? @map("familia_participa")
+  atividadesFamilia      String? @map("atividades_familia")
+  participaComFamilia    Boolean? @map("participa_com_familia")
+  atividadesPcdi         String? @map("atividades_pcdi")
+  atividadesPreferidas   String? @map("atividades_preferidas")
+  dificuldadesParticipacao String? @map("dificuldades_participacao")
+  atividadesDesejadas    String? @map("atividades_desejadas")
+  atividadesDesejadasPcdi String? @map("atividades_desejadas_pcdi")
+  apoioNecessario        String? @map("apoio_necessario")
+
+  prontuario             Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioEducacaoEscolar {
+  id                      Int     @id @default(autoincrement())
+  prontuarioId            Int     @unique @map("prontuario_id")
+  frequentouEscola        Boolean? @map("frequentou_escola")
+  quandoFrequentou        String? @map("quando_frequentou")
+  fezAmigos               Boolean? @map("fez_amigos")
+  gostavaEscola           Boolean? @map("gostava_escola")
+  comoPerceberamSentimento String? @map("como_perceberam_sentimento")
+  escolaPreparaAutonomia  Boolean? @map("escola_prepara_autonomia")
+
+  prontuario              Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+model ProntuarioConvivencia {
+  id                      Int     @id @default(autoincrement())
+  prontuarioId            Int     @unique @map("prontuario_id")
+  anosMunicipio           Int?    @map("anos_municipio")
+  sempreMorouMunicipio    Boolean? @map("sempre_morou_municipio")
+  anosBairro              Int?    @map("anos_bairro")
+  sempreMorouBairro       Boolean? @map("sempre_morou_bairro")
+  vivenciouDiscriminacao  Boolean? @map("vivenciou_discriminacao")
+  discriminacaoComentario String? @map("discriminacao_comentario")
+  participaMovimentos     Boolean? @map("participa_movimentos")
+  movimentosDescricao    String? @map("movimentos_descricao")
+  tecnicoReferencia      String? @map("tecnico_referencia")
+  numeroRegistroConselho String? @map("numero_registro_conselho")
+  assinatura             String? @map("assinatura")
+  dataEntrevista         DateTime? @map("data_entrevista")
+
+  prontuario             Prontuario @relation(fields: [prontuarioId], references: [id], onDelete: Cascade)
+}
+
+enum Sexo {
+  Masculino
+  Feminino
+}
+
+enum TipoLogin {
+  admin
+  psicologa
+  assistente_social
+  secretaria
+}
+
+enum TipoInteracao {
+  EXCLUSAO
+  ATUALIZACAO
+  INSERCAO
+}
+
+enum TipoDeficiencia {
+  intelectual
+  autismo
+  múltipla
+  física
+  auditiva
+  visual
+}
+
+enum RacaCor {
+  branco_a
+  preto_a
+  amarelo_a
+  pardo_a
+  outro_a
+}
+
+enum LocalizacaoEnum {
+  rural
+  urbano
+}
+
+enum TipoDomicilioEnum {
+  casa
+  apartamento
+  alojamento
+  comodo_quarto
+  barraco
+  outro
+}
+
+enum TipoPropriedadeEnum {
+  propria_quitada
+  propria_sendo_paga
+  alugada
+  cedida
+  invasao_posse
+  outro
+}
+
+enum FormaAbastecimentoEnum {
+  Rede_geral
+  Poco_ou_nascente
+  Cisterna
+  Outra
+}
+
+enum FormaIluminacaoEnum {
+  eletrica
+  gerador
+  sem_iluminacao_eletrica
+  outro
+}
+
+enum TipoPisoEnum {
+  Terra
+  Cimento
+  Madeira
+  Ceramica
+  Carpete
+  Outro
+}
+
+enum TipoAcessoEnum {
+  asfaltado_calcado
+  chao_batido
+  escadaria
+  outro
+}
+
+enum FrequenciaIdaMedicoEnum {
+  semanal
+  mensal
+  semestral
+  outro
+}
+
+enum FormaAcessoEnum {
+  Demanda_espontanea
+  Encaminhamento_SUAS
+  Encaminhamento_Saude
+  Encaminhamento_Educacao
+  Encaminhamento_Conselho_Tutelar
+  Encaminhamento_Judiciario
+  Encaminhamento_Sistema_de_Garantia_de_Direitos
+  Outros
+}
+
+enum PeriodoEstudoEnum {
+  Manha
+  Tarde
+  Noite
+  Integral
+}
+
+enum ParentescoEnum {
+  pai
+  mae
+  irmao_ia
+  avo_o
+  outro
+}
+
+enum ParticipaRotinasSet {
+  Cafe
+  TV
+  Festas
+  Restaurantes
+  Outros
+}
+
+enum FrequenciaTarefasEnum {
+  Diaria
+  Semanal
+  Quinzenal
+  Finais_de_semana
+  Outras
+}
+
+enum MeioTransporteEnum {
+  onibus
+  bicicleta
+  carro
+  trem
+  metro
+  a_pe
+  outro
+}
+
+enum FrequenciaEnum {
+  diario
+  semanal
+  eventualmente
+  nunca
+}
