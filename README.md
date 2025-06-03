@@ -47,7 +47,7 @@ npm install
 
 ### ⚙️ 3.3 Configurar Variáveis de Ambiente
 
-Edite o arquivo `.env` e configure sua conexão local com o MySQL:
+FaÇa uma cópia do arquivo `.env.example` e a renomeia para `.env` e configure sua conexão local com o MySQL:
 
 ```env
 DATABASE_URL="mysql://root:SUA_SENHA@localhost:3306/apae_db"
@@ -90,5 +90,7 @@ npm run start:dev
 ## ✅ Pronto!
 
 A aplicação estará disponível na porta configurada no seu `.env` (por padrão, `http://localhost:3000`).
+
+O Swagger está disponível na rota `http://localhost:3000/api`
 
 ---
