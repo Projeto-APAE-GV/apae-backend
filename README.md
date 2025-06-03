@@ -94,3 +94,45 @@ A aplicação estará disponível na porta configurada no seu `.env` (por padrã
 O Swagger está disponível na rota `http://localhost:3000/api`
 
 ---
+
+### 🛡️ Proteção da Branch Main
+
+Este repositório possui **regras de proteção** configuradas na branch `main` para garantir a qualidade e segurança do código:
+
+- ❌ **Commits diretos não são permitidos** na branch `main`
+- ✅ **Todas as alterações** devem ser feitas através de **Pull Requests**
+- 👥 **Revisão obrigatória** antes do merge
+- 🔄 **Branch deve estar atualizada** antes do merge
+
+### 📋 Fluxo Recomendado
+
+1. **Criar uma nova branch** para sua feature/correção:
+   ```bash
+   git checkout -b feature/nome-da-sua-feature
+   ```
+
+2. **Fazer suas alterações** e commits:
+   ```bash
+   git add .
+   git commit -m "feat: descrição da sua alteração"
+   ```
+
+3. **Enviar para o repositório**:
+   ```bash
+   git push origin feature/nome-da-sua-feature
+   ```
+
+4. **Abrir um Pull Request** no GitHub para a branch `main`
+
+5. **Aguardar revisão** e aprovação do código
+
+6. **Merge será feito** após aprovação
+
+> 💡 **Importante**: Sempre mantenha sua branch atualizada com a `main` antes de abrir o PR:
+>
+> ```bash
+> git checkout main
+> git pull origin main
+> git checkout feature/nome-da-sua-feature
+> git merge main
+> ```
