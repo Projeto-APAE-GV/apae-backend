@@ -2,11 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { usuarios } from '@prisma/client'; 
 
 @Injectable()
 export class UsuariosService {
   constructor(private prisma: PrismaService) {}
 
+  // Método usado na autenticação
+  async findByEmail(email: string): Promise<usuarios | null> {
+    return this.prisma.usuarios.findUnique({ where: { email } });
+  }
+
+  // Métodos normais do CRUD
   create(data: CreateUsuarioDto) {
     return this.prisma.usuarios.create({ data });
   }
@@ -16,7 +23,9 @@ export class UsuariosService {
   }
 
   findOne(id: number) {
-    return this.prisma.usuarios.findUnique({ where: { id_usuario: id } });
+    return this.prisma.usuarios.findUnique({
+      where: { id_usuario: id },
+    });
   }
 
   update(id: number, data: UpdateUsuarioDto) {
@@ -27,6 +36,8 @@ export class UsuariosService {
   }
 
   remove(id: number) {
-    return this.prisma.usuarios.delete({ where: { id_usuario: id } });
+    return this.prisma.usuarios.delete({
+      where: { id_usuario: id },
+    });
   }
 }
