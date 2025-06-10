@@ -8,12 +8,10 @@ import { usuarios } from '@prisma/client';
 export class UsuariosService {
   constructor(private prisma: PrismaService) {}
 
-  // Método usado na autenticação
   async findByEmail(email: string): Promise<usuarios | null> {
     return this.prisma.usuarios.findUnique({ where: { email } });
   }
 
-  // Métodos normais do CRUD
   create(data: CreateUsuarioDto) {
     return this.prisma.usuarios.create({ data });
   }
