@@ -11,7 +11,8 @@ export class UsuariosService {
   async findByEmail(email: string): Promise<usuarios | null> {
     return this.prisma.usuarios.findUnique({ where: { email } });
   }
-
+  
+  //teste
   create(data: CreateUsuarioDto) {
     return this.prisma.usuarios.create({ data });
   }
