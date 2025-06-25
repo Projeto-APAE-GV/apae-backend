@@ -54,8 +54,11 @@ export class PerguntasService {
     return this.findOne(pergunta.id_pergunta);
   }
 
-  async findAll() {
+;;  async findAll(retornarApenasInativas?: boolean) {
     return this.prisma.perguntas.findMany({
+      where: retornarApenasInativas === true
+        ? { ativa: false }
+        : { ativa: true },
       include: {
         categoria: true,
         usuario: {
@@ -74,7 +77,7 @@ export class PerguntasService {
     });
   }
 
-  async findByCategoria(idCategoria: number) {
+  async findByCategoria(idCategoria: number, retornarApenasInativas?: boolean) {
     const categoria = await this.prisma.categorias.findUnique({
       where: { id_categoria: idCategoria },
     });
@@ -84,7 +87,10 @@ export class PerguntasService {
     }
 
     return this.prisma.perguntas.findMany({
-      where: { id_categoria: idCategoria },
+      where: {
+        id_categoria: idCategoria,
+        ...(retornarApenasInativas === true ? { ativa: false } : { ativa: true }),
+      },
       include: {
         categoria: true,
         usuario: {
@@ -177,10 +183,11 @@ export class PerguntasService {
   async remove(id: number) {
     const pergunta = await this.findOne(id);
 
-    await this.prisma.perguntas.delete({
+    await this.prisma.perguntas.update({
       where: { id_pergunta: id },
+      data: { ativa: false },
     });
 
-    return { message: 'Pergunta removida com sucesso' };
+    return { message: 'Pergunta desativada com sucesso' };
   }
 } 
