@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Request, Query } from '@nestjs/common';
 import { PerguntasService } from './perguntas.service';
 import { CreatePerguntaDto } from './dto/create-pergunta.dto';
 import { UpdatePerguntaDto } from './dto/update-pergunta.dto';
@@ -13,6 +13,7 @@ import {
   ApiBearerAuth,
   ApiParam,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { Request as ExpressRequest } from 'express';
 
@@ -66,6 +67,7 @@ export class PerguntasController {
   @Get()
   @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria, usuarios_tipo_usuario.assistente)
   @ApiOperation({ summary: 'Listar todas as perguntas' })
+  @ApiQuery({ name: 'retornarApenasInativas', required: false, type: Boolean, description: 'Se true, retorna apenas perguntas inativas' })
   @ApiResponse({
     status: 200,
     description: 'Lista de perguntas retornada com sucesso',
@@ -100,14 +102,15 @@ export class PerguntasController {
   })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
   @ApiResponse({ status: 403, description: 'Acesso negado' })
-  findAll() {
-    return this.perguntasService.findAll();
+  findAll(@Query('retornarApenasInativas') retornarApenasInativas?: string) {
+    return this.perguntasService.findAll(retornarApenasInativas === 'true');
   }
 
   @Get('categoria/:idCategoria')
   @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria, usuarios_tipo_usuario.assistente)
   @ApiOperation({ summary: 'Listar perguntas por categoria' })
   @ApiParam({ name: 'idCategoria', description: 'ID da categoria' })
+  @ApiQuery({ name: 'retornarApenasInativas', required: false, type: Boolean, description: 'Se true, retorna apenas perguntas inativas' })
   @ApiResponse({
     status: 200,
     description: 'Lista de perguntas da categoria retornada com sucesso',
@@ -143,8 +146,8 @@ export class PerguntasController {
   @ApiResponse({ status: 401, description: 'Não autorizado' })
   @ApiResponse({ status: 403, description: 'Acesso negado' })
   @ApiResponse({ status: 404, description: 'Categoria não encontrada' })
-  findByCategoria(@Param('idCategoria') idCategoria: string) {
-    return this.perguntasService.findByCategoria(Number(idCategoria));
+  findByCategoria(@Param('idCategoria') idCategoria: string, @Query('retornarApenasInativas') retornarApenasInativas?: string) {
+    return this.perguntasService.findByCategoria(Number(idCategoria), retornarApenasInativas === 'true');
   }
 
   @Get(':id')
@@ -231,9 +234,9 @@ export class PerguntasController {
 
   @Delete(':id')
   @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria)
-  @ApiOperation({ summary: 'Remover uma pergunta' })
+  @ApiOperation({ summary: 'Desativar uma pergunta' })
   @ApiParam({ name: 'id', description: 'ID da pergunta' })
-  @ApiResponse({ status: 200, description: 'Pergunta removida com sucesso' })
+  @ApiResponse({ status: 200, description: 'Pergunta desativada com sucesso' })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
   @ApiResponse({ status: 403, description: 'Acesso negado' })
   @ApiResponse({ status: 404, description: 'Pergunta não encontrada' })
