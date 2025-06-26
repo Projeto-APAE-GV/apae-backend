@@ -25,7 +25,7 @@ export class PerguntasController {
   constructor(private readonly perguntasService: PerguntasService) {}
 
   @Post()
-  @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria)
+  @Roles(usuarios_tipo_usuario.admin, usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria)
   @ApiOperation({ summary: 'Criar uma nova pergunta' })
   @ApiBody({ type: CreatePerguntaDto })
   @ApiResponse({
@@ -65,7 +65,12 @@ export class PerguntasController {
   }
 
   @Get()
-  @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria, usuarios_tipo_usuario.assistente)
+  @Roles(
+    usuarios_tipo_usuario.admin,
+    usuarios_tipo_usuario.psicologa,
+    usuarios_tipo_usuario.secretaria,
+    usuarios_tipo_usuario.assistente
+  )
   @ApiOperation({ summary: 'Listar todas as perguntas' })
   @ApiQuery({ name: 'retornarApenasInativas', required: false, type: Boolean, description: 'Se true, retorna apenas perguntas inativas' })
   @ApiResponse({
@@ -102,12 +107,15 @@ export class PerguntasController {
   })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
   @ApiResponse({ status: 403, description: 'Acesso negado' })
-  findAll(@Query('retornarApenasInativas') retornarApenasInativas?: string) {
-    return this.perguntasService.findAll(retornarApenasInativas === 'true');
+  findAll(
+    @Query('retornarApenasInativas') retornarApenasInativas?: string,
+    @Request() request?: ExpressRequest
+  ) {
+    return this.perguntasService.findAll(retornarApenasInativas === 'true', request);
   }
 
   @Get('categoria/:idCategoria')
-  @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria, usuarios_tipo_usuario.assistente)
+  @Roles(usuarios_tipo_usuario.admin, usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria, usuarios_tipo_usuario.assistente)
   @ApiOperation({ summary: 'Listar perguntas por categoria' })
   @ApiParam({ name: 'idCategoria', description: 'ID da categoria' })
   @ApiQuery({ name: 'retornarApenasInativas', required: false, type: Boolean, description: 'Se true, retorna apenas perguntas inativas' })
@@ -151,7 +159,7 @@ export class PerguntasController {
   }
 
   @Get(':id')
-  @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria, usuarios_tipo_usuario.assistente)
+  @Roles(usuarios_tipo_usuario.admin, usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria, usuarios_tipo_usuario.assistente)
   @ApiOperation({ summary: 'Buscar uma pergunta pelo ID' })
   @ApiParam({ name: 'id', description: 'ID da pergunta' })
   @ApiResponse({
@@ -186,12 +194,12 @@ export class PerguntasController {
   @ApiResponse({ status: 401, description: 'Não autorizado' })
   @ApiResponse({ status: 403, description: 'Acesso negado' })
   @ApiResponse({ status: 404, description: 'Pergunta não encontrada' })
-  findOne(@Param('id') id: string) {
-    return this.perguntasService.findOne(Number(id));
+  findOne(@Param('id') id: string, @Request() request: ExpressRequest) {
+  return this.perguntasService.findOne(Number(id), request);
   }
 
   @Patch(':id')
-  @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria)
+  @Roles(usuarios_tipo_usuario.admin, usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria)
   @ApiOperation({ summary: 'Atualizar uma pergunta' })
   @ApiParam({ name: 'id', description: 'ID da pergunta' })
   @ApiBody({ type: UpdatePerguntaDto })
@@ -233,7 +241,7 @@ export class PerguntasController {
   }
 
   @Delete(':id')
-  @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria)
+  @Roles(usuarios_tipo_usuario.admin, usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria)
   @ApiOperation({ summary: 'Desativar uma pergunta' })
   @ApiParam({ name: 'id', description: 'ID da pergunta' })
   @ApiResponse({ status: 200, description: 'Pergunta desativada com sucesso' })
@@ -243,4 +251,4 @@ export class PerguntasController {
   remove(@Param('id') id: string) {
     return this.perguntasService.remove(Number(id));
   }
-} 
+}

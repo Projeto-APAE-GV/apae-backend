@@ -14,7 +14,7 @@ export class AssistidosController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('secretaria', 'psicologa')
+  @Roles('admin', 'secretaria', 'psicologa')
   async create(@Body() dto: CreateAssistidoDto) {
     return this.svc.create(dto);
   }
@@ -48,7 +48,7 @@ export class AssistidosController {
 
   @Get(':id/perguntas')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('secretaria', 'psicologa', 'assistente')
+  @Roles('admin', 'secretaria', 'psicologa', 'assistente')
   async getPerguntas(
     @Param('id', ParseIntPipe) id: number,
   ) {

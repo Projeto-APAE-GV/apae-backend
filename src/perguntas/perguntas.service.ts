@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreatePerguntaDto } from './dto/create-pergunta.dto';
 import { UpdatePerguntaDto } from './dto/update-pergunta.dto';
 import { Request as ExpressRequest } from 'express';
+import { ForbiddenException } from '@nestjs/common';
 
 @Injectable()
 export class PerguntasService {
@@ -54,8 +55,9 @@ export class PerguntasService {
     return this.findOne(pergunta.id_pergunta);
   }
 
-;;  async findAll(retornarApenasInativas?: boolean) {
-    return this.prisma.perguntas.findMany({
+  async findAll(retornarApenasInativas?: boolean, request?: ExpressRequest) {
+    const usuario = request?.user as any;
+    const perguntas = await this.prisma.perguntas.findMany({
       where: retornarApenasInativas === true
         ? { ativa: false }
         : { ativa: true },
@@ -75,6 +77,15 @@ export class PerguntasService {
         { ordem_categoria: 'asc' },
       ],
     });
+
+    if (usuario?.tipo_usuario === 'admin') return perguntas;
+
+    // Filtra perguntas conforme permissões
+    return perguntas.filter(pergunta =>
+      pergunta.permissoes_pergunta.some(
+        p => p.tipo_usuario === usuario.tipo_usuario && p.pode_visualizar
+      )
+    );
   }
 
   async findByCategoria(idCategoria: number, retornarApenasInativas?: boolean) {
@@ -106,32 +117,56 @@ export class PerguntasService {
     });
   }
 
-  async findOne(id: number) {
-    const pergunta = await this.prisma.perguntas.findUnique({
-      where: { id_pergunta: id },
-      include: {
-        categoria: true,
-        usuario: {
-          select: {
-            nome: true,
-            email: true,
-            tipo_usuario: true,
-          },
+  async findOne(id: number, request?: ExpressRequest) {
+  const pergunta = await this.prisma.perguntas.findUnique({
+    where: { id_pergunta: id },
+    include: {
+      categoria: true,
+      usuario: {
+        select: {
+          nome: true,
+          email: true,
+          tipo_usuario: true,
         },
-        permissoes_pergunta: true,
       },
-    });
+      permissoes_pergunta: true,
+    },
+  });
 
-    if (!pergunta) {
-      throw new NotFoundException('Pergunta não encontrada');
-    }
-
-    return pergunta;
+  if (!pergunta) {
+    throw new NotFoundException('Pergunta não encontrada');
   }
+
+  // Verificação de permissão
+  if (request) {
+    const usuario = request.user as any;
+    if (usuario.tipo_usuario !== 'admin') {
+      const permissao = pergunta.permissoes_pergunta.find(
+        (p) => p.tipo_usuario === usuario.tipo_usuario && p.pode_visualizar
+      );
+      if (!permissao) {
+        throw new ForbiddenException('Você não tem permissão para visualizar esta pergunta');
+      }
+    }
+  }
+
+  return pergunta;
+}
 
   async update(id: number, updatePerguntaDto: UpdatePerguntaDto, request: ExpressRequest) {
     const pergunta = await this.findOne(id);
+    const { permissoes, ...perguntaData } = updatePerguntaDto;
 
+    // Verificação de permissão de edição
+    if (request) {
+      const usuario = request.user as any;
+      const permissao = pergunta.permissoes_pergunta.find(
+        (p) => p.tipo_usuario === usuario.tipo_usuario && p.pode_editar
+    );
+    if (!permissao && usuario.tipo !== 'admin') {
+      throw new ForbiddenException('Você não tem permissão para editar esta pergunta');
+    }
+    }
     if (updatePerguntaDto.id_categoria) {
       const categoria = await this.prisma.categorias.findUnique({
         where: { id_categoria: updatePerguntaDto.id_categoria },
@@ -142,7 +177,7 @@ export class PerguntasService {
       }
     }
 
-    const { permissoes, ...perguntaData } = updatePerguntaDto;
+    
 
     const updatedPergunta = await this.prisma.perguntas.update({
       where: { id_pergunta: id },
@@ -190,4 +225,4 @@ export class PerguntasService {
 
     return { message: 'Pergunta desativada com sucesso' };
   }
-} 
+}
