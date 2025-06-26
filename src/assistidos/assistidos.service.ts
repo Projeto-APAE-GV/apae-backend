@@ -2,12 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAssistidoDto } from './dto/create-assistido.dto';
 import { UpdateAssistidoDto } from './dto/update-assistido.dto';
-import { PerguntasService } from 'perguntas/perguntas.service';
-import { PermissoesPerguntaService } from './permissoes-pergunta/permissoes-pergunta.service';
 
 @Injectable()
 export class AssistidosService {
-  constructor(private prisma: PrismaService, private perguntasSvc: PerguntasService, private permPergSvc: PermissoesPerguntaService) {}
+  constructor(private prisma: PrismaService) {}
 
   create(data: CreateAssistidoDto) {
     return this.prisma.assistidos.create({ data });

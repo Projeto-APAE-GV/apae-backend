@@ -14,9 +14,9 @@ import { CategoriasModule } from './categorias/categorias.module';
     }),
     AuthModule,
     UsuariosModule,
-      PerguntasModule,
-      AssistidosModule,
-      CategoriasModule
+    PerguntasModule,
+    AssistidosModule,
+    CategoriasModule
   ],
 })
 export class AppModule {}
