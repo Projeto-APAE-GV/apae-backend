@@ -190,4 +190,4 @@ export class PerguntasService {
 
     return { message: 'Pergunta desativada com sucesso' };
   }
-} 
+}

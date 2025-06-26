@@ -104,4 +104,4 @@ export class CreatePerguntaDto {
   @Type(() => PermissaoPerguntaDto)
   @IsOptional()
   permissoes?: PermissaoPerguntaDto[];
-} 
+}

@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AssistidosService } from './assistidos.service';
 import { AssistidosController } from './assistidos.controller';
-import { CategoriasModule } from '../categorias/categorias.module';
+import { PrismaModule } from '../prisma/prisma.module';
+import { PerguntasModule } from '../perguntas/perguntas.module';
 import { PermissoesPerguntaModule } from './permissoes-pergunta/permissoes-pergunta.module';
-import { PerguntasModule } from './dto/perguntas/perguntas.module';
 
 @Module({
+  imports: [PrismaModule, PerguntasModule, PermissoesPerguntaModule],
   providers: [AssistidosService],
   controllers: [AssistidosController],
-  imports: [CategoriasModule, PerguntasModule, PermissoesPerguntaModule]
 })
 export class AssistidosModule {}

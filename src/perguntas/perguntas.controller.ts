@@ -1,4 +1,3 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Request, Query } from '@nestjs/common';
 import { PerguntasService } from './perguntas.service';
 import { CreatePerguntaDto } from './dto/create-pergunta.dto';
 import { UpdatePerguntaDto } from './dto/update-pergunta.dto';
@@ -243,4 +242,4 @@ export class PerguntasController {
   remove(@Param('id') id: string) {
     return this.perguntasService.remove(Number(id));
   }
-} 
+}
