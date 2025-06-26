@@ -20,7 +20,7 @@ export class CreateUsuarioDto {
   email: string;
 
   @ApiProperty({
-    example: '$2b$10$yA93LW6RvCI6igFViW3AqO7SEh2bMMG80dAdnJc4dpSTi7.C1WV4q',
+    example: '$2b$10$mY1Hcd/HZxTlbEHDV7IdJO7X3ham5Qgami1TEj4zLT0VnNW9mJz4C',
     description: 'Hash da senha do usuário (gerado com bcrypt)',
   })
   @IsString({ message: 'Senha deve ser uma string' })
@@ -31,7 +31,7 @@ export class CreateUsuarioDto {
   @ApiProperty({
     enum: usuarios_tipo_usuario,
     example: usuarios_tipo_usuario.secretaria,
-    description: 'Tipo de usuário (secretaria, psicologa, assistente)',
+    description: 'Tipo de usuário (admin, secretaria, psicologa, assistente)',
   })
   @IsEnum(usuarios_tipo_usuario, { message: 'Tipo de usuário inválido' })
   @IsNotEmpty({ message: 'Tipo de usuário é obrigatório' })

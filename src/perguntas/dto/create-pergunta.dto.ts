@@ -22,7 +22,7 @@ export class PermissaoPerguntaDto {
   pode_visualizar?: boolean;
 
   @ApiProperty({
-    example: false,
+    example: true,
     description: 'Se o tipo de usuário pode editar a pergunta',
   })
   @IsBoolean({ message: 'pode_editar deve ser um boolean' })
