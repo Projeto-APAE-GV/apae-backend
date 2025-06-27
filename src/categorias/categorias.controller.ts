@@ -34,8 +34,53 @@ export class CategoriasController {
 
   @Post()
   @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria)
-  @ApiOperation({ summary: 'Criar uma nova categoria' })
-  @ApiBody({ type: CreateCategoriaDto })
+  @ApiOperation({ 
+    summary: 'Criar uma nova categoria',
+    description: 'Cria uma nova categoria para organizar as perguntas do sistema'
+  })
+  @ApiBody({ 
+    type: CreateCategoriaDto,
+    description: 'Dados da categoria a ser criada',
+    examples: {
+      dadosPessoais: {
+        summary: 'Categoria Dados Pessoais',
+        description: 'Exemplo de criação da categoria Dados Pessoais',
+        value: {
+          nome_categoria: 'Dados Pessoais',
+          descricao: 'Categoria para armazenar informações pessoais básicas do assistido como nome, CPF, endereço, telefone, etc.',
+          ordem_exibicao: 1,
+          ativa: true
+        }
+      },
+      historicoMedico: {
+        summary: 'Categoria Histórico Médico',
+        description: 'Exemplo de criação da categoria Histórico Médico',
+        value: {
+          nome_categoria: 'Histórico Médico',
+          descricao: 'Categoria para armazenar informações sobre histórico médico, medicamentos, alergias e condições de saúde.',
+          ordem_exibicao: 2,
+          ativa: true
+        }
+      },
+      avaliacaoPsicologica: {
+        summary: 'Categoria Avaliação Psicológica',
+        description: 'Exemplo de criação da categoria Avaliação Psicológica',
+        value: {
+          nome_categoria: 'Avaliação Psicológica',
+          descricao: 'Categoria para perguntas relacionadas à avaliação psicológica e comportamental do assistido.',
+          ordem_exibicao: 3,
+          ativa: true
+        }
+      },
+      exemploMinimo: {
+        summary: 'Exemplo mínimo',
+        description: 'Exemplo de criação de categoria apenas com o nome obrigatório',
+        value: {
+          nome_categoria: 'Nova Categoria'
+        }
+      }
+    }
+  })
   @ApiResponse({
     status: 201,
     description: 'Categoria criada com sucesso',
@@ -140,9 +185,55 @@ export class CategoriasController {
 
   @Patch(':id')
   @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria)
-  @ApiOperation({ summary: 'Atualizar uma categoria' })
+  @ApiOperation({ 
+    summary: 'Atualizar uma categoria',
+    description: 'Atualiza parcialmente os dados de uma categoria existente'
+  })
   @ApiParam({ name: 'id', description: 'ID da categoria' })
-  @ApiBody({ type: UpdateCategoriaDto })
+  @ApiBody({ 
+    type: UpdateCategoriaDto,
+    description: 'Dados da categoria a ser atualizada (apenas os campos que deseja alterar)',
+    examples: {
+      atualizarNome: {
+        summary: 'Atualizar nome',
+        description: 'Exemplo de atualização apenas do nome da categoria',
+        value: {
+          nome_categoria: 'Dados Pessoais Atualizados'
+        }
+      },
+      atualizarDescricao: {
+        summary: 'Atualizar descrição',
+        description: 'Exemplo de atualização da descrição da categoria',
+        value: {
+          descricao: 'Categoria atualizada para armazenar informações pessoais completas do assistido incluindo dados de contato e endereço.'
+        }
+      },
+      alterarOrdem: {
+        summary: 'Alterar ordem',
+        description: 'Exemplo de alteração da ordem de exibição da categoria',
+        value: {
+          ordem_exibicao: 5
+        }
+      },
+      desativarCategoria: {
+        summary: 'Desativar categoria',
+        description: 'Exemplo de desativação de uma categoria',
+        value: {
+          ativa: false
+        }
+      },
+      atualizacaoCompleta: {
+        summary: 'Atualização completa',
+        description: 'Exemplo de atualização de múltiplos campos',
+        value: {
+          nome_categoria: 'Histórico Médico Completo',
+          descricao: 'Categoria expandida para incluir histórico médico detalhado, medicamentos, alergias e acompanhamento.',
+          ordem_exibicao: 2,
+          ativa: true
+        }
+      }
+    }
+  })
   @ApiResponse({
     status: 200,
     description: 'Categoria atualizada com sucesso',
