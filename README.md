@@ -50,7 +50,7 @@ npm install
 FaÇa uma cópia do arquivo `.env.example` e a renomeia para `.env` e configure sua conexão local com o MySQL:
 
 ```env
-DATABASE_URL="mysql://root:SUA_SENHA@localhost:3306/apae_db"
+DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/sistema_apae"
 ```
 
 ---
@@ -60,14 +60,8 @@ DATABASE_URL="mysql://root:SUA_SENHA@localhost:3306/apae_db"
 Você pode usar o Prisma para aplicar o schema ao banco de dados com:
 
 ```bash
-npx prisma db push
+npx prisma migrate deploy
 ```
-
-> 🧠 Se estiver usando migrations:
->
-> ```bash
-> npx prisma migrate deploy
-> ```
 
 ---
 
