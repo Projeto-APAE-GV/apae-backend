@@ -15,7 +15,6 @@ CREATE INDEX idx_categorias_nome ON categorias(nome_categoria);
 CREATE INDEX idx_categorias_criada_por ON categorias(criada_por);
 
 -- perguntas: busca textual e ordenação
-CREATE INDEX idx_perguntas_texto ON perguntas(texto_pergunta);
 CREATE INDEX idx_perguntas_criada_por ON perguntas(criada_por);
 CREATE INDEX idx_perguntas_categoria_ordem ON perguntas(id_categoria, ordem_categoria);
 
