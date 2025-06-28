@@ -34,6 +34,18 @@ export class RespostasController {
     return this.svc.findOne(id);
   }
 
+  @Get('assistido/:id')
+  @Roles(
+    usuarios_tipo_usuario.admin,
+    usuarios_tipo_usuario.psicologa,
+    usuarios_tipo_usuario.secretaria,
+    usuarios_tipo_usuario.assistente
+  )
+  @ApiOperation({ summary: 'Buscar todas as respostas de um assistido por ID' })
+  findByAssistido(@Param('id', ParseIntPipe) id: number) {
+    return this.svc.findByAssistido(id);
+  }
+
   @Post()
   @Roles(
     usuarios_tipo_usuario.admin,

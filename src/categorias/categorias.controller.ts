@@ -8,6 +8,7 @@ import {
   Delete,
   ParseIntPipe,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { CategoriasService } from './categorias.service';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
@@ -23,6 +24,7 @@ import {
   ApiBearerAuth,
   ApiParam,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 
 @ApiTags('Categorias')
@@ -114,7 +116,16 @@ export class CategoriasController {
 
   @Get()
   @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria, usuarios_tipo_usuario.assistente)
-  @ApiOperation({ summary: 'Listar todas as categorias' })
+  @ApiOperation({ 
+    summary: 'Listar todas as categorias',
+    description: 'Lista todas as categorias ativas por padrão. Use o parâmetro retornarApenasInativas=true para listar apenas categorias inativas.'
+  })
+  @ApiQuery({ 
+    name: 'retornarApenasInativas', 
+    required: false, 
+    type: Boolean, 
+    description: 'Se true, retorna apenas categorias inativas. Se false ou não informado, retorna apenas categorias ativas.' 
+  })
   @ApiResponse({
     status: 200,
     description: 'Lista de categorias retornada com sucesso',
@@ -144,8 +155,8 @@ export class CategoriasController {
   })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
   @ApiResponse({ status: 403, description: 'Acesso negado' })
-  findAll() {
-    return this.svc.findAll();
+  findAll(@Query('retornarApenasInativas') retornarApenasInativas?: string) {
+    return this.svc.findAll(retornarApenasInativas === 'true');
   }
 
   @Get(':id')
@@ -271,9 +282,24 @@ export class CategoriasController {
 
   @Delete(':id')
   @Roles(usuarios_tipo_usuario.psicologa, usuarios_tipo_usuario.secretaria)
-  @ApiOperation({ summary: 'Remover uma categoria' })
+  @ApiOperation({ 
+    summary: 'Desativar uma categoria',
+    description: 'Desativa uma categoria existente alterando o campo ativa para false'
+  })
   @ApiParam({ name: 'id', description: 'ID da categoria' })
-  @ApiResponse({ status: 200, description: 'Categoria removida com sucesso' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Categoria desativada com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { 
+          type: 'string',
+          example: 'Categoria desativada com sucesso'
+        }
+      }
+    }
+  })
   @ApiResponse({ status: 401, description: 'Não autorizado' })
   @ApiResponse({ status: 403, description: 'Acesso negado' })
   @ApiResponse({ status: 404, description: 'Categoria não encontrada' })

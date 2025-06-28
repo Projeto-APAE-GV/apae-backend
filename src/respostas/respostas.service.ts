@@ -17,6 +17,38 @@ export class RespostasService {
     return resposta;
   }
 
+  async findByAssistido(id_assistido: number) {
+    const respostas = await this.prisma.respostas.findMany({
+      where: { id_assistido },
+      include: {
+        pergunta: {
+          include: {
+            categoria: true,
+          },
+        },
+        usuario: {
+          select: {
+            id_usuario: true,
+            nome: true,
+            email: true,
+            tipo_usuario: true,
+          },
+        },
+      },
+      orderBy: [
+        { pergunta: { categoria: { ordem_exibicao: 'asc' } } },
+        { pergunta: { ordem_categoria: 'asc' } },
+        { versao: 'desc' },
+      ],
+    });
+
+    if (!respostas || respostas.length === 0) {
+      throw new NotFoundException('Nenhuma resposta encontrada para este assistido');
+    }
+
+    return respostas;
+  }
+
   async create(dto: CreateRespostaDto, usuarioLogado: any) {
     // Busca a pergunta para validar tipo e obter versão
     const pergunta = await this.prisma.perguntas.findUnique({ where: { id_pergunta: dto.id_pergunta } });
