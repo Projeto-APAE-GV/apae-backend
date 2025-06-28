@@ -28,13 +28,13 @@ export class CreateAssistidoDto {
   rg?: string;
 
   @ApiProperty({
-    example: '1990-05-15',
-    description: 'Data de nascimento do assistido (formato: YYYY-MM-DD)',
+    example: '1990-05-15T00:00:00.000Z',
+    description: 'Data de nascimento do assistido (formato ISO 8601: YYYY-MM-DDTHH:mm:ss.sssZ)',
     required: false,
   })
   @IsOptional()
-  @IsDateString({}, { message: 'Data de nascimento deve ser uma data válida' })
-  data_nascimento?: Date;
+  @IsDateString({}, { message: 'Data de nascimento deve ser uma data válida no formato ISO 8601' })
+  data_nascimento?: string;
 
   @ApiProperty({
     enum: ['M', 'F', 'Outro'],

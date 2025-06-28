@@ -32,12 +32,15 @@ export class RespostasService {
     });
     const novaVersao = ultima ? ultima.versao + 1 : 1;
 
+    const prismaData = {
+      ...dto,
+      resposta_data: dto.resposta_data ? new Date(dto.resposta_data) : undefined,
+      versao: novaVersao,
+      respondida_por: usuarioLogado?.id_usuario,
+    };
+
     return this.prisma.respostas.create({
-      data: {
-        ...dto,
-        versao: novaVersao,
-        respondida_por: usuarioLogado?.id_usuario,
-      },
+      data: prismaData,
     });
   }
 
@@ -50,14 +53,18 @@ export class RespostasService {
 
     // Cria nova versão (não sobrescreve)
     const novaVersao = resposta.versao + 1;
+    
+    const prismaData = {
+      ...resposta,
+      ...dto,
+      resposta_data: dto.resposta_data ? new Date(dto.resposta_data) : resposta.resposta_data,
+      versao: novaVersao,
+      respondida_por: usuarioLogado?.id_usuario,
+      data_resposta: new Date(),
+    };
+    
     return this.prisma.respostas.create({
-      data: {
-        ...resposta,
-        ...dto,
-        versao: novaVersao,
-        respondida_por: usuarioLogado?.id_usuario,
-        data_resposta: new Date(),
-      },
+      data: prismaData,
     });
   }
 

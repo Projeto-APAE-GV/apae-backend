@@ -39,7 +39,7 @@ export class AssistidosController {
           nome: 'João Silva Santos',
           cpf: '123.456.789-00',
           rg: '12.345.678-9',
-          data_nascimento: '1990-05-15',
+          data_nascimento: '1990-05-15T00:00:00.000Z',
           sexo: 'M',
           estado_civil: 'Solteiro',
           telefone: '(11) 99999-9999',

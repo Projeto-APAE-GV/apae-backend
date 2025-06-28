@@ -8,7 +8,11 @@ export class AssistidosService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreateAssistidoDto) {
-    return this.prisma.assistidos.create({ data });
+    const prismaData = {
+      ...data,
+      data_nascimento: data.data_nascimento ? new Date(data.data_nascimento) : undefined,
+    };
+    return this.prisma.assistidos.create({ data: prismaData });
   }
 
   findAll() {
@@ -22,9 +26,13 @@ export class AssistidosService {
   }
 
   update(id: number, data: UpdateAssistidoDto) {
+    const prismaData = {
+      ...data,
+      data_nascimento: data.data_nascimento ? new Date(data.data_nascimento) : undefined,
+    };
     return this.prisma.assistidos.update({
       where: { id_assistido: id },
-      data,
+      data: prismaData,
     });
   }
 
