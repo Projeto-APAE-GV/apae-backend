@@ -6,6 +6,7 @@ import { PerguntasModule } from './perguntas/perguntas.module';
 import { AssistidosModule } from './assistidos/assistidos.module';
 import { CategoriasModule } from './categorias/categorias.module';
 import { RespostasModule } from './respostas/respostas.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -20,5 +21,6 @@ import { RespostasModule } from './respostas/respostas.module';
     CategoriasModule,
     RespostasModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
